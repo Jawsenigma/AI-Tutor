@@ -19,10 +19,10 @@ export default NextAuth({
         });
 
         if (user && bcrypt.compareSync(credentials?.password || "", user.password)) {
-          return { id: user.id, email: user.email, name: user.name };
+          return { id: user.id.toString(), email: user.email, name: user.name };
         }
         return null;
-      },
+      }
     }),
   ],
   session: {
@@ -36,8 +36,20 @@ export default NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.id;
+      if (session.user) {
+        session.user = {
+          ...session.user,
+          id: token.id as string
+        } as {
+          name?: string | null | undefined;
+          email?: string | null | undefined;
+          image?: string | null | undefined;
+          id: string;
+        };
+      }
       return session;
     },
+
+
   },
 });
